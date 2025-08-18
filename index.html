@@ -129,7 +129,8 @@
   </div>
 
   <script>
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxnbvCmSJUSrp1GGb9KsfPh0XtpInrVL__DvyHKBH2IBLB4V2GEFyUwHQvbqCxFohE9/exec";
+    // Your current Apps Script Web App URL (ends with /exec)
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
 
     // Normalize postcode to 4 digits (strip spaces/non-digits)
@@ -190,6 +191,7 @@
       return true;
     }
 
+    // CORS-safe save: no custom headers, use no-cors, with a sendBeacon fallback
     async function savePartial(eventType) {
       const payload = {
         leadId,
@@ -200,17 +202,26 @@
         screen: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
         ts: new Date().toISOString()
       };
+      const json = JSON.stringify(payload);
+      let sent = false;
       try {
-        const res = await fetch(WEBHOOK_URL, {
+        await fetch(WEBHOOK_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          mode: "no-cors",
+          body: json,
+          keepalive: true
         });
-        if (!res.ok) throw new Error("Bad status " + res.status);
-        statusEl.textContent = "Saved.";
+        sent = true; // opaque response; assume success
       } catch (e) {
-        statusEl.textContent = "Working offline—will retry on next step.";
+        try {
+          if (navigator.sendBeacon) {
+            const blob = new Blob([json], { type: "text/plain;charset=UTF-8" });
+            navigator.sendBeacon(WEBHOOK_URL, blob);
+            sent = true;
+          }
+        } catch (_) {}
       }
+      statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
     }
 
     form.addEventListener("click", async (e) => {
@@ -229,8 +240,7 @@
       e.preventDefault();
       if (!validForStep()) { statusEl.textContent = "Please complete this step."; return; }
       await savePartial("complete");
-      showStep(6);
-      showStep(7);
+      showStep(6); // show thank-you (index 6)
     });
 
     showStep(0);
