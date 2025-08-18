@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Find Your Top Local Agent</title>
+  <style>
+    :root { --bg:#f7f7fb; --card:#fff; --text:#222; --muted:#666; --primary:#0b66ff; --ok:#2e7d32; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+    .wrap { max-width:560px; margin:40px auto; padding:0 16px; }
+    .card { background:var(--card); padding:28px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+    h1 { margin:0 0 6px; font-size:24px; }
+    p.lead { margin:0 0 20px; color:var(--muted); }
+    .step { display:none; }
+    .step.active { display:block; }
+    label { display:block; font-weight:600; margin:16px 0 8px; }
+    input, select { width:100%; padding:12px 14px; border:1px solid #e1e1e8; border-radius:10px; font-size:15px; background:#fff; }
+    .btns { display:flex; gap:12px; margin-top:18px; }
+    button { cursor:pointer; border:0; padding:12px 16px; border-radius:10px; font-weight:600; }
+    .next { background:var(--primary); color:#fff; }
+    .back { background:#e9ecf4; color:#1b2b3a; }
+    .submit { background:var(--ok); color:#fff; }
+    .progress { height:6px; width:100%; background:#ececf3; border-radius:999px; overflow:hidden; margin:14px 0 20px; }
+    .bar { height:100%; width:0%; background:var(--primary); transition:width .25s ease; }
+    .hint { font-size:12px; color:var(--muted); margin-top:6px; }
+    .tiny { font-size:12px; color:#888; margin-top:12px; }
+    .center { text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+
+      <h1>We’ll find the right local agent</h1>
+      <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
+
+      <div class="progress"><div class="bar" id="bar"></div></div>
+
+      <form id="funnel" novalidate>
+        <!-- 1. Postcode -->
+        <div class="step active" data-step="1">
+          <label for="postcode">What’s your property’s postcode?</label>
+          <input id="postcode" name="postcode" inputmode="numeric" minlength="4" maxlength="4" placeholder="e.g. 2170" required />
+          <div class="hint">We use this to check recent local sales and agent performance.</div>
+          <div class="btns">
+            <button type="button" class="next">Next</button>
+          </div>
+        </div>
+
+        <!-- 2. Property Type -->
+        <div class="step" data-step="2">
+          <label for="ptype">Property type</label>
+          <select id="ptype" name="propertyType" required>
+            <option value="">Select…</option>
+            <option>House</option>
+            <option>Land</option>
+            <option>Unit</option>
+            <option>Townhouse</option>
+            <option>Other</option>
+          </select>
+          <div class="btns">
+            <button type="button" class="back">Back</button>
+            <button type="button" class="next">Next</button>
+          </div>
+        </div>
+
+        <!-- 3. Price Point -->
+        <div class="step" data-step="3">
+          <label for="priceBand">Estimated price point</label>
+          <select id="priceBand" name="priceBand" required>
+            <option value="">Select…</option>
+            <option>0–500k</option>
+            <option>500k–1m</option>
+            <option>$1m–$2m</option>
+            <option>$2m+</option>
+          </select>
+          <div class="btns">
+            <button type="button" class="back">Back</button>
+            <button type="button" class="next">Next</button>
+          </div>
+        </div>
+
+        <!-- 4. Property Address -->
+        <div class="step" data-step="4">
+          <label for="address">Property address</label>
+          <input id="address" name="address" placeholder="e.g. 10 Example St, Liverpool NSW" required />
+          <div class="btns">
+            <button type="button" class="back">Back</button>
+            <button type="button" class="next">Next</button>
+          </div>
+        </div>
+
+        <!-- 5. Phone -->
+        <div class="step" data-step="5">
+          <label for="phone">Best phone number</label>
+          <input id="phone" name="phone" inputmode="tel" placeholder="e.g. 0400 000 000" required />
+          <div class="hint">We’ll only use this to share your short-list and next steps.</div>
+          <div class="btns">
+            <button type="button" class="back">Back</button>
+            <button type="button" class="next">Next</button>
+          </div>
+        </div>
+
+        <!-- 6. Email -->
+        <div class="step" data-step="6">
+          <label for="email">Email for your results</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" required />
+          <div class="tiny">By continuing, you agree we may contact you about your appraisal. You can opt out anytime.</div>
+          <div class="btns">
+            <button type="button" class="back">Back</button>
+            <button type="submit" class="submit">See my match</button>
+          </div>
+        </div>
+
+        <!-- Thank you -->
+        <div class="step" data-step="7">
+          <div class="center">
+            <h2>We’ve found a match 🎉</h2>
+            <p>Based on recent results in your area, <strong>Brock Morley</strong> is a great fit for your property.</p>
+            <p>We’ll reach out shortly with a quick appraisal and next steps.</p>
+          </div>
+        </div>
+      </form>
+
+      <div id="status" class="tiny"></div>
+    </div>
+  </div>
+
+  <script>
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxnbvCmSJUSrp1GGb9KsfPh0XtpInrVL__DvyHKBH2IBLB4V2GEFyUwHQvbqCxFohE9/exec";
+    const PROJECT = "agent-matcher-v1";
+
+    // Persistent lead ID
+    const leadId = (() => {
+      const k = PROJECT + ":leadId";
+      let id = localStorage.getItem(k);
+      if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); localStorage.setItem(k, id); }
+      return id;
+    })();
+
+    const form = document.getElementById("funnel");
+    const steps = [...form.querySelectorAll(".step")];
+    const bar = document.getElementById("bar");
+    const statusEl = document.getElementById("status");
+    let stepIndex = 0;
+
+    function showStep(i) {
+      steps.forEach((s, idx) => s.classList.toggle("active", idx === i));
+      stepIndex = i;
+      const pct = Math.min(100, Math.round((Math.min(i+1, 6) / 6) * 100));
+      bar.style.width = pct + "%";
+    }
+
+    function getCurrentFields() {
+      const step = steps[stepIndex];
+      const inputs = step.querySelectorAll("input, select");
+      const data = {};
+      inputs.forEach(inp => { data[inp.name || inp.id] = inp.value.trim(); });
+      return data;
+    }
+
+    function validForStep() {
+      const step = steps[stepIndex];
+      const inputs = step.querySelectorAll("input[required], select[required]");
+      for (const inp of inputs) {
+        if (!inp.value.trim()) return false;
+        if (inp.type === "email" && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(inp.value)) return false;
+        if (inp.id === "postcode" && !/^\\d{4}$/.test(inp.value)) return false; // AU postcode
+      }
+      return true;
+    }
+
+    async function savePartial(eventType) {
+      const payload = {
+        leadId,
+        event: eventType,
+        stepNumber: stepIndex + 1,
+        answers: getCurrentFields(),
+        userAgent: navigator.userAgent,
+        screen: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
+        ts: new Date().toISOString()
+      };
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Bad status " + res.status);
+        statusEl.textContent = "Saved.";
+      } catch (e) {
+        statusEl.textContent = "Working offline—will retry on next step.";
+      }
+    }
+
+    form.addEventListener("click", async (e) => {
+      const t = e.target;
+      if (t.classList.contains("next")) {
+        if (!validForStep()) { statusEl.textContent = "Please complete this step."; return; }
+        await savePartial("step");
+        showStep(stepIndex + 1);
+      }
+      if (t.classList.contains("back")) {
+        showStep(Math.max(0, stepIndex - 1));
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validForStep()) { statusEl.textContent = "Please complete this step."; return; }
+      await savePartial("complete");
+      showStep(6);
+      showStep(7);
+    });
+
+    showStep(0);
+  </script>
+</body>
+</html>
