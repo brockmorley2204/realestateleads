@@ -5,59 +5,67 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Find Your Top Local Agent</title>
   <style>
-    :root { --text:#222; --muted:#666; --primary:#0b66ff; --ok:#2e7d32; }
-
-    * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; background:transparent; color:var(--text); font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial; }
-    .wrap { max-width:560px; margin:40px auto; padding:0 16px; }
-
-    /* White card with 70% transparency, no grey page bg */
-    .card {
-      background: rgba(255,255,255,0.7);
-      -webkit-backdrop-filter: saturate(1.1) blur(2px);
-      backdrop-filter: saturate(1.1) blur(2px);
-      border: 1px solid rgba(255,255,255,0.4);
-      padding: 28px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    :root{
+      --brand:#0b66ff;      /* change to your brand */
+      --ink:#182338;
+      --muted:#6b768a;
+      --ok:#2e7d32;
+      --line:rgba(24,35,56,.08);
     }
-
-    h1 { margin:0 0 6px; font-size:24px; }
-    p.lead { margin:0 0 20px; color:var(--muted); }
-
-    .progress { height:6px; width:100%; background:rgba(0,0,0,.06); border-radius:999px; overflow:hidden; margin:14px 0 20px; }
-    .bar { height:100%; width:0%; background:var(--primary); transition:width .25s ease; }
-
-    .step { display:none; }
-    .step.active { display:block; }
-
-    label { display:block; font-weight:600; margin:16px 0 8px; }
-    input, select { width:100%; padding:12px 14px; border:1px solid #e1e1e8; border-radius:10px; font-size:15px; background:#fff; }
-    .hint { font-size:12px; color:var(--muted); margin-top:6px; }
-    .tiny { font-size:12px; color:#888; margin-top:12px; }
-    .center { text-align:center; }
-
-    .btns { display:flex; gap:12px; margin-top:18px; }
-    button { cursor:pointer; border:0; padding:12px 16px; border-radius:10px; font-weight:600; }
-    .next { background:var(--primary); color:#fff; }
-    .back { background:#e9ecf4; color:#1b2b3a; }
-    .submit { background:var(--ok); color:#fff; }
-
-    /* Multiple-choice tiles */
-    .choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
-    .choice {
-      display:flex; align-items:center; justify-content:center;
-      border:1px solid #e1e1e8; background:#fff; border-radius:12px; padding:12px 10px;
-      font-weight:700; cursor:pointer; user-select:none; text-align:center;
-      transition:transform .05s ease, box-shadow .1s ease, border-color .1s ease;
+    *{box-sizing:border-box}
+    html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:transparent;color:var(--ink)}
+    .wrap{max-width:640px;margin:44px auto;padding:0 18px}
+    /* Glass card (70% white) */
+    .card{
+      background:rgba(255,255,255,.70);
+      border:1px solid rgba(255,255,255,.45);
+      border-radius:18px;
+      padding:28px 26px 24px;
+      backdrop-filter:saturate(1.1) blur(3px);
+      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      box-shadow:0 24px 60px -30px rgba(24,35,56,.35);
     }
-    .choice:hover { border-color:#cfd6e3; box-shadow:0 6px 14px rgba(0,0,0,.06); }
-    .choice:active { transform:translateY(1px); }
-    .choice.selected { outline:2px solid var(--primary); background:#f5f8ff; }
-
-    @media (max-width: 460px) {
-      .choices { grid-template-columns:1fr; }
+    h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
+    .lead{margin:0 0 18px;color:var(--muted)}
+    /* Stepper + progress */
+    .stepper{display:flex;gap:10px;margin:4px 0 10px;padding:0;list-style:none}
+    .stepper li{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+    .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff}
+    .lab{font-size:12px;color:#7a879c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .stepper li.active .dot{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(11,102,255,.35)}
+    .stepper li.active .lab{color:#34425c;font-weight:700}
+    .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:6px 0 18px}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),#6aa5ff);transition:width .25s ease}
+    /* Steps */
+    .step{display:none;animation:fade .22s ease}
+    .step.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    label{display:block;margin:10px 0 8px;font-weight:800}
+    input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff;transition:border .15s,box-shadow .15s}
+    input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 4px #eaf0ff}
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
+    .tiny{font-size:12px;color:#7f8aa1;margin-top:10px}
+    .center{text-align:center}
+    /* Buttons */
+    .btns{display:flex;gap:12px;margin-top:16px}
+    button{cursor:pointer;border:0;padding:12px 16px;border-radius:12px;font-weight:800;letter-spacing:.2px}
+    .next{background:var(--brand);color:#fff;box-shadow:0 10px 22px -10px rgba(11,102,255,.6)}
+    .back{background:#eef2f7;color:#2b3c55}
+    .submit{background:var(--ok);color:#fff;box-shadow:0 10px 22px -12px rgba(46,125,50,.5)}
+    /* Choice tiles */
+    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
+    .choice{
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;
+      font-weight:800;user-select:none;cursor:pointer;transition:transform .05s,box-shadow .12s,border-color .12s,background .12s
     }
+    .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
+    .choice:active{transform:translateY(1px)}
+    .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
+    @media (max-width:520px){ .choices{grid-template-columns:1fr} }
+    /* Status */
+    #status{margin-top:8px;min-height:16px;color:#6b768a}
+    #status.saved{color:#2e7d32}
   </style>
 </head>
 <body>
@@ -67,41 +75,48 @@
       <h1>We’ll find the right local agent</h1>
       <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
 
+      <ol class="stepper" id="stepper">
+        <li class="active"><span class="dot">1</span><span class="lab">Postcode</span></li>
+        <li><span class="dot">2</span><span class="lab">Type</span></li>
+        <li><span class="dot">3</span><span class="lab">Price</span></li>
+        <li><span class="dot">4</span><span class="lab">Address</span></li>
+        <li><span class="dot">5</span><span class="lab">Phone</span></li>
+        <li><span class="dot">6</span><span class="lab">Email</span></li>
+      </ol>
+
       <div class="progress"><div class="bar" id="bar"></div></div>
 
       <form id="funnel" novalidate>
         <!-- 1. Postcode -->
         <div class="step active" data-step="1">
           <label for="postcode">What’s your property’s postcode?</label>
-          <input id="postcode" name="postcode" inputmode="numeric" autocomplete="postal-code"
-                 minlength="4" maxlength="4" placeholder="e.g. 2170" required />
+          <input id="postcode" name="postcode" inputmode="numeric" minlength="4" maxlength="4"
+                 autocomplete="postal-code" placeholder="e.g. 2170" required />
           <div class="hint">We use this to check recent local sales and agent performance.</div>
           <div class="btns">
             <button type="button" class="next">Next</button>
           </div>
         </div>
 
-        <!-- 2. Property Type (multiple choice) -->
+        <!-- 2. Property Type (tiles) -->
         <div class="step" data-step="2">
           <label>Property type</label>
-          <!-- hidden input to store the choice -->
           <input type="hidden" id="ptypeHidden" name="propertyType" required />
           <div class="choices" id="ptypeChoices">
-            <div class="choice" data-value="House">House</div>
-            <div class="choice" data-value="Land">Land</div>
-            <div class="choice" data-value="Unit">Unit</div>
-            <div class="choice" data-value="Townhouse">Townhouse</div>
-            <div class="choice" data-value="Other">Other</div>
+            <div class="choice" data-value="House">🏠 House</div>
+            <div class="choice" data-value="Unit">🏢 Unit</div>
+            <div class="choice" data-value="Townhouse">🏘️ Townhouse</div>
+            <div class="choice" data-value="Land">🧱 Land</div>
+            <div class="choice" data-value="Other">🧩 Other</div>
           </div>
           <div class="btns" style="margin-top:12px">
             <button type="button" class="back">Back</button>
           </div>
         </div>
 
-        <!-- 3. Price Point (multiple choice) -->
+        <!-- 3. Price Point (tiles) -->
         <div class="step" data-step="3">
           <label>Estimated price point</label>
-          <!-- hidden input to store the choice -->
           <input type="hidden" id="priceBandHidden" name="priceBand" required />
           <div class="choices" id="priceChoices">
             <div class="choice" data-value="0–500k">0–500k</div>
@@ -114,7 +129,7 @@
           </div>
         </div>
 
-        <!-- 4. Property Address -->
+        <!-- 4. Address -->
         <div class="step" data-step="4">
           <label for="address">Property address</label>
           <input id="address" name="address" placeholder="e.g. 10 Example St, Liverpool NSW" required />
@@ -146,149 +161,169 @@
           </div>
         </div>
 
-        <!-- Thank you -->
+        <!-- 7. Thank you -->
         <div class="step" data-step="7">
-          <div class="center">
-            <h2>We’ve found a match 🎉</h2>
-            <p>Based on recent results in your area, <strong>Brock Morley</strong> is a great fit for your property.</p>
-            <p>We’ll reach out shortly with a quick appraisal and next steps.</p>
+          <div class="center" style="padding:6px 2px">
+            <h2 style="margin:6px 0 8px">We’ve found a match 🎉</h2>
+            <p style="margin:0 0 10px;color:var(--muted)">Based on recent results in your area, <strong>Brock Morley</strong> is a great fit for your property.</p>
+            <p class="tiny">We’ll reach out shortly with a quick appraisal and next steps.</p>
           </div>
         </div>
       </form>
 
-      <div id="status" class="tiny"></div>
+      <div id="status" class="tiny" aria-live="polite"></div>
     </div>
   </div>
 
   <script>
-    // Use your current Apps Script Web App URL
+    // Your Apps Script Web App URL (ends with /exec)
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
+    const formSteps = 6; // number of interactive steps
 
-    // Normalize postcode to 4 digits (strip spaces/non-digits)
-    function normalizePostcode(v) { return String(v || "").replace(/\D/g, "").slice(0, 4); }
+    // Helpers
+    function normalizePostcode(v){ return String(v||"").replace(/\D/g,"").slice(0,4); }
 
-    // Persistent lead ID
-    const leadId = (() => {
-      const k = PROJECT + ":leadId";
-      let id = localStorage.getItem(k);
-      if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); localStorage.setItem(k, id); }
+    // Lead ID
+    const leadId = (()=>{ const k=PROJECT+":leadId"; let id=localStorage.getItem(k);
+      if(!id){ id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2)); localStorage.setItem(k,id); }
       return id;
     })();
 
+    // DOM
     const form = document.getElementById("funnel");
     const steps = [...form.querySelectorAll(".step")];
     const bar = document.getElementById("bar");
     const statusEl = document.getElementById("status");
+    const stepper = document.getElementById("stepper").children;
     let stepIndex = 0;
 
-    // Live sanitize postcode as user types/pastes
+    // Postcode sanitize
     const pcInput = document.getElementById("postcode");
-    pcInput.addEventListener("input", () => {
-      const normalized = normalizePostcode(pcInput.value);
-      if (pcInput.value !== normalized) pcInput.value = normalized;
+    pcInput.addEventListener("input", ()=>{
+      const n = normalizePostcode(pcInput.value);
+      if(pcInput.value!==n) pcInput.value=n;
     });
 
-    function showStep(i) {
-      steps.forEach((s, idx) => s.classList.toggle("active", idx === i));
-      stepIndex = i;
-      const pct = Math.min(100, Math.round((Math.min(i+1, 6) / 6) * 100));
+    // UI updates
+    function updateUI(){
+      steps.forEach((s,i)=>s.classList.toggle("active", i===stepIndex));
+      const pct = Math.min(100, Math.round((Math.min(stepIndex+1, formSteps)/formSteps)*100));
       bar.style.width = pct + "%";
+      [...stepper].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
     }
+    function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
 
-    function getCurrentFields() {
+    // Collect fields on current step
+    function getCurrentFields(){
       const step = steps[stepIndex];
       const inputs = step.querySelectorAll("input, select");
       const data = {};
-      inputs.forEach(inp => {
-        let val = inp.value.trim();
-        if (inp.id === "postcode") val = normalizePostcode(val);
-        data[inp.name || inp.id] = val;
+      inputs.forEach(inp=>{
+        let v = inp.value.trim();
+        if(inp.id==="postcode") v = normalizePostcode(v);
+        data[inp.name || inp.id] = v;
       });
       return data;
     }
 
-    function validForStep() {
+    // Validation minimal
+    function validForStep(){
       const step = steps[stepIndex];
       const inputs = step.querySelectorAll("input[required], select[required]");
-      for (const inp of inputs) {
-        let value = inp.value.trim();
-        if (inp.id === "postcode") value = normalizePostcode(value);
-        if (!value) return false;
-        if (inp.type === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return false;
-        if (inp.id === "postcode" && value.length !== 4) return false; // AU postcode 4 digits
+      for(const inp of inputs){
+        let v = inp.value.trim();
+        if(inp.id==="postcode") v = normalizePostcode(v);
+        if(!v) return false;
+        if(inp.type==="email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return false;
+        if(inp.id==="postcode" && v.length!==4) return false;
       }
       return true;
     }
 
-    // CORS-safe save: no custom headers, use no-cors, with a sendBeacon fallback
-    async function savePartial(eventType) {
+    // Save (fire-and-forget; UI never waits on network)
+    async function savePartial(eventType){
       const payload = {
-        leadId,
-        event: eventType,
-        stepNumber: stepIndex + 1,
-        answers: getCurrentFields(),
-        userAgent: navigator.userAgent,
-        screen: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
-        ts: new Date().toISOString()
+        leadId, event:eventType, stepNumber:stepIndex+1,
+        answers:getCurrentFields(), userAgent:navigator.userAgent,
+        screen:{w:innerWidth,h:innerHeight,dpr:devicePixelRatio||1},
+        ts:new Date().toISOString()
       };
       const json = JSON.stringify(payload);
       let sent = false;
-      try {
-        await fetch(WEBHOOK_URL, { method: "POST", mode: "no-cors", body: json, keepalive: true });
-        sent = true; // opaque response, assume success
-      } catch (e) {
-        try {
-          if (navigator.sendBeacon) {
-            const blob = new Blob([json], { type: "text/plain;charset=UTF-8" });
+      try{
+        fetch(WEBHOOK_URL,{method:"POST",mode:"no-cors",body:json,keepalive:true});
+        sent = true;
+      }catch(e){
+        try{
+          if(navigator.sendBeacon){
+            const blob = new Blob([json],{type:"text/plain;charset=UTF-8"});
             navigator.sendBeacon(WEBHOOK_URL, blob);
             sent = true;
           }
-        } catch (_) {}
+        }catch(_){}
       }
       statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
+      statusEl.classList.toggle("saved", sent);
     }
 
-    form.addEventListener("click", async (e) => {
-      const t = e.target;
+    // Click handlers
+    form.addEventListener("click", (e)=>{
+      const el = e.target.closest(".choice, .next, .back");
+      if(!el) return;
 
-      // Normal Next / Back buttons
-      if (t.classList.contains("next")) {
-        if (!validForStep()) { statusEl.textContent = "Please complete this step."; return; }
-        await savePartial("step");
-        showStep(stepIndex + 1);
+      // Back
+      if(el.classList.contains("back")){ showStep(stepIndex-1); return; }
+
+      // Next (text inputs)
+      if(el.classList.contains("next")){
+        if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
+        statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
+        savePartial("step");            // fire & forget
+        showStep(stepIndex+1);
+        return;
       }
-      if (t.classList.contains("back")) {
-        showStep(Math.max(0, stepIndex - 1));
+
+      // Choice tiles (auto-advance)
+      if(el.classList.contains("choice")){
+        const group = el.parentElement;
+        group.querySelectorAll(".choice").forEach(c=>c.classList.remove("selected"));
+        el.classList.add("selected");
+        if(group.id==="ptypeChoices"){ document.getElementById("ptypeHidden").value = el.dataset.value; }
+        if(group.id==="priceChoices"){ document.getElementById("priceBandHidden").value = el.dataset.value; }
+        statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
+        savePartial("step");            // fire & forget
+        showStep(stepIndex+1);
       }
+    });
 
-      // Multiple-choice clicks (property type & price band)
-      if (t.classList.contains("choice")) {
-        // Mark selected visually within this group
-        const group = t.parentElement;
-        group.querySelectorAll(".choice").forEach(c => c.classList.remove("selected"));
-        t.classList.add("selected");
-
-        // Determine which hidden input to set
-        if (group.id === "ptypeChoices") {
-          document.getElementById("ptypeHidden").value = t.dataset.value;
-        } else if (group.id === "priceChoices") {
-          document.getElementById("priceBandHidden").value = t.dataset.value;
+    // Enter key submits "Next" on text-input steps
+    ["postcode","address","phone","email"].forEach(id=>{
+      const x = document.getElementById(id);
+      if(!x) return;
+      x.addEventListener("keydown",(e)=>{
+        if(e.key==="Enter"){
+          e.preventDefault();
+          const fakeNext = { classList:{ contains:(c)=>c==="next" } };
+          form.dispatchEvent(new Event("click")); // noop; just for consistency
+          if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
+          statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
+          savePartial("step");
+          showStep(stepIndex+1);
         }
-
-        // Save immediately and advance
-        await savePartial("step");
-        showStep(stepIndex + 1);
-      }
+      });
     });
 
-    form.addEventListener("submit", async (e) => {
+    // Final submit (also non-blocking)
+    form.addEventListener("submit",(e)=>{
       e.preventDefault();
-      if (!validForStep()) { statusEl.textContent = "Please complete this step."; return; }
-      await savePartial("complete");
-      showStep(6); // show thank-you (index 6)
+      if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
+      statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
+      savePartial("complete");
+      showStep(formSteps); // thank-you
     });
 
+    // Init
     showStep(0);
   </script>
 </body>
