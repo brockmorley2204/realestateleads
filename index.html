@@ -41,7 +41,8 @@
         <!-- 1. Postcode -->
         <div class="step active" data-step="1">
           <label for="postcode">What’s your property’s postcode?</label>
-          <input id="postcode" name="postcode" inputmode="numeric" minlength="4" maxlength="4" placeholder="e.g. 2170" required />
+          <input id="postcode" name="postcode" inputmode="numeric" autocomplete="postal-code"
+                 minlength="4" maxlength="4" placeholder="e.g. 2170" required />
           <div class="hint">We use this to check recent local sales and agent performance.</div>
           <div class="btns">
             <button type="button" class="next">Next</button>
@@ -131,6 +132,11 @@
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxnbvCmSJUSrp1GGb9KsfPh0XtpInrVL__DvyHKBH2IBLB4V2GEFyUwHQvbqCxFohE9/exec";
     const PROJECT = "agent-matcher-v1";
 
+    // Normalize postcode to 4 digits (strip spaces/non-digits)
+    function normalizePostcode(v) {
+      return String(v || "").replace(/\D/g, "").slice(0, 4);
+    }
+
     // Persistent lead ID
     const leadId = (() => {
       const k = PROJECT + ":leadId";
@@ -145,6 +151,13 @@
     const statusEl = document.getElementById("status");
     let stepIndex = 0;
 
+    // Live sanitize postcode as user types/pastes
+    const pcInput = document.getElementById("postcode");
+    pcInput.addEventListener("input", () => {
+      const normalized = normalizePostcode(pcInput.value);
+      if (pcInput.value !== normalized) pcInput.value = normalized;
+    });
+
     function showStep(i) {
       steps.forEach((s, idx) => s.classList.toggle("active", idx === i));
       stepIndex = i;
@@ -156,7 +169,11 @@
       const step = steps[stepIndex];
       const inputs = step.querySelectorAll("input, select");
       const data = {};
-      inputs.forEach(inp => { data[inp.name || inp.id] = inp.value.trim(); });
+      inputs.forEach(inp => {
+        let val = inp.value.trim();
+        if (inp.id === "postcode") val = normalizePostcode(val);
+        data[inp.name || inp.id] = val;
+      });
       return data;
     }
 
@@ -164,9 +181,11 @@
       const step = steps[stepIndex];
       const inputs = step.querySelectorAll("input[required], select[required]");
       for (const inp of inputs) {
-        if (!inp.value.trim()) return false;
-        if (inp.type === "email" && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(inp.value)) return false;
-        if (inp.id === "postcode" && !/^\\d{4}$/.test(inp.value)) return false; // AU postcode
+        let value = inp.value.trim();
+        if (inp.id === "postcode") value = normalizePostcode(value);
+        if (!value) return false;
+        if (inp.type === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return false;
+        if (inp.id === "postcode" && value.length !== 4) return false; // AU postcode 4 digits
       }
       return true;
     }
