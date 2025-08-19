@@ -17,11 +17,9 @@
       backdrop-filter:saturate(1.1) blur(3px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
       box-shadow:0 24px 60px -30px rgba(24,35,56,.35);
     }
-    h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
-    .lead{margin:0 0 18px;color:var(--muted)}
     .hidden{display:none !important}
 
-    /* Stepper (dots only) + progress */
+    /* Stepper (dots) + progress */
     .stepper{display:flex;gap:10px;justify-content:center;margin:4px 0 10px;padding:0;list-style:none}
     .stepper li{flex:0 0 auto;display:flex;align-items:center}
     .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff}
@@ -48,7 +46,7 @@
     .back{background:#eef2f7;color:#2b3c55}
     .submit{background:var(--ok);color:#fff;box-shadow:0 10px 22px -12px rgba(46,125,50,.5)}
 
-    /* Choice tiles (icon above, label under) */
+    /* Choice tiles (icon above, label below) */
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
     .choice{
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
@@ -72,12 +70,7 @@
   <div class="wrap">
     <div class="card">
 
-      <!-- Intro + controls -->
-      <div id="intro">
-        <h1>We’ll find the right local agent</h1>
-        <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
-      </div>
-
+      <!-- Controls (stepper + progress) -->
       <div id="controlsWrap">
         <ol class="stepper" id="stepper" aria-label="Form progress">
           <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
@@ -101,7 +94,7 @@
           </div>
         </div>
 
-        <!-- 2. Property Type (tiles with icon + label under) -->
+        <!-- 2. Property Type -->
         <div class="step" data-step="2">
           <label>Awesome! Now, what best matches your property type?</label>
           <input type="hidden" id="ptypeHidden" name="propertyType" required />
@@ -117,7 +110,7 @@
           </div>
         </div>
 
-        <!-- 3. Price Point (tiles) -->
+        <!-- 3. Price Point -->
         <div class="step" data-step="3">
           <label>Estimated price point</label>
           <input type="hidden" id="priceBandHidden" name="priceBand" required />
@@ -197,7 +190,6 @@
     const statusEl = document.getElementById("status");
     const stepper = document.getElementById("stepper");
     const stepperEls = stepper.children;
-    const intro = document.getElementById("intro");
     const controlsWrap = document.getElementById("controlsWrap");
     let stepIndex = 0;
 
@@ -211,11 +203,9 @@
       bar.style.width = pct + "%";
       [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
 
-      // Hide intro + controls on step 1; hide only the stepper on step 2
+      // Hide all chrome on step 1; on step 2 hide only the stepper (keep the progress bar)
       const hideAllChrome = (stepIndex === 0);
-      intro.classList.toggle("hidden", hideAllChrome);
       controlsWrap.classList.toggle("hidden", hideAllChrome);
-      // Hide the stepper (but keep the progress bar) on step 0 and 1
       stepper.classList.toggle("hidden", stepIndex < 2);
     }
     function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
