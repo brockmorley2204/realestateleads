@@ -27,42 +27,54 @@
     }
     h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
     .lead{margin:0 0 18px;color:var(--muted)}
-    /* Stepper + progress */
-    .stepper{display:flex;gap:10px;margin:4px 0 10px;padding:0;list-style:none}
-    .stepper li{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
-    .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff}
-    .lab{font-size:12px;color:#7a879c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Stepper (dots only) + progress */
+    .stepper{display:flex;gap:10px;justify-content:center;margin:4px 0 10px;padding:0;list-style:none}
+    .stepper li{flex:0 0 auto;display:flex;align-items:center}
+    .dot{
+      width:26px;height:26px;border-radius:50%;
+      display:grid;place-items:center;
+      font-weight:800;font-size:12px;
+      color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff
+    }
     .stepper li.active .dot{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(11,102,255,.35)}
-    .stepper li.active .lab{color:#34425c;font-weight:700}
-    .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:6px 0 18px}
+
+    .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:8px 0 18px}
     .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),#6aa5ff);transition:width .25s ease}
+
     /* Steps */
     .step{display:none;animation:fade .22s ease}
     .step.active{display:block}
     @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
     label{display:block;margin:10px 0 8px;font-weight:800}
     input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff;transition:border .15s,box-shadow .15s}
     input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 4px #eaf0ff}
     .hint{font-size:12px;color:var(--muted);margin-top:6px}
     .tiny{font-size:12px;color:#7f8aa1;margin-top:10px}
     .center{text-align:center}
+
     /* Buttons */
     .btns{display:flex;gap:12px;margin-top:16px}
     button{cursor:pointer;border:0;padding:12px 16px;border-radius:12px;font-weight:800;letter-spacing:.2px}
     .next{background:var(--brand);color:#fff;box-shadow:0 10px 22px -10px rgba(11,102,255,.6)}
     .back{background:#eef2f7;color:#2b3c55}
     .submit{background:var(--ok);color:#fff;box-shadow:0 10px 22px -12px rgba(46,125,50,.5)}
+
     /* Choice tiles */
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
     .choice{
       display:flex;align-items:center;justify-content:center;text-align:center;
       padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;
-      font-weight:800;user-select:none;cursor:pointer;transition:transform .05s,box-shadow .12s,border-color .12s,background .12s
+      font-weight:800;user-select:none;cursor:pointer;
+      transition:transform .05s,box-shadow .12s,border-color .12s,background .12s
     }
     .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
     .choice:active{transform:translateY(1px)}
     .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
+
     @media (max-width:520px){ .choices{grid-template-columns:1fr} }
+
     /* Status */
     #status{margin-top:8px;min-height:16px;color:#6b768a}
     #status.saved{color:#2e7d32}
@@ -75,13 +87,14 @@
       <h1>We’ll find the right local agent</h1>
       <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
 
-      <ol class="stepper" id="stepper">
-        <li class="active"><span class="dot">1</span><span class="lab">Postcode</span></li>
-        <li><span class="dot">2</span><span class="lab">Type</span></li>
-        <li><span class="dot">3</span><span class="lab">Price</span></li>
-        <li><span class="dot">4</span><span class="lab">Address</span></li>
-        <li><span class="dot">5</span><span class="lab">Phone</span></li>
-        <li><span class="dot">6</span><span class="lab">Email</span></li>
+      <!-- Dots-only stepper -->
+      <ol class="stepper" id="stepper" aria-label="Form progress">
+        <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
+        <li><span class="dot" aria-label="Step 2">2</span></li>
+        <li><span class="dot" aria-label="Step 3">3</span></li>
+        <li><span class="dot" aria-label="Step 4">4</span></li>
+        <li><span class="dot" aria-label="Step 5">5</span></li>
+        <li><span class="dot" aria-label="Step 6">6</span></li>
       </ol>
 
       <div class="progress"><div class="bar" id="bar"></div></div>
@@ -182,7 +195,7 @@
     const formSteps = 6; // number of interactive steps
 
     // Helpers
-    function normalizePostcode(v){ return String(v||"").replace(/\D/g,"").slice(0,4); }
+    function normalizePostcode(v){ return String(v||"").replace(/\\D/g,"").slice(0,4); }
 
     // Lead ID
     const leadId = (()=>{ const k=PROJECT+":leadId"; let id=localStorage.getItem(k);
@@ -235,14 +248,14 @@
         let v = inp.value.trim();
         if(inp.id==="postcode") v = normalizePostcode(v);
         if(!v) return false;
-        if(inp.type==="email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return false;
+        if(inp.type==="email" && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(v)) return false;
         if(inp.id==="postcode" && v.length!==4) return false;
       }
       return true;
     }
 
     // Save (fire-and-forget; UI never waits on network)
-    async function savePartial(eventType){
+    function savePartial(eventType){
       const payload = {
         leadId, event:eventType, stepNumber:stepIndex+1,
         answers:getCurrentFields(), userAgent:navigator.userAgent,
@@ -297,15 +310,13 @@
       }
     });
 
-    // Enter key submits "Next" on text-input steps
+    // Enter key acts like Next on text inputs
     ["postcode","address","phone","email"].forEach(id=>{
       const x = document.getElementById(id);
       if(!x) return;
       x.addEventListener("keydown",(e)=>{
         if(e.key==="Enter"){
           e.preventDefault();
-          const fakeNext = { classList:{ contains:(c)=>c==="next" } };
-          form.dispatchEvent(new Event("click")); // noop; just for consistency
           if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
           statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
           savePartial("step");
