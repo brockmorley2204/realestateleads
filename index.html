@@ -48,12 +48,20 @@
     .back{background:#eef2f7;color:#2b3c55}
     .submit{background:var(--ok);color:#fff;box-shadow:0 10px 22px -12px rgba(46,125,50,.5)}
 
-    /* Choice tiles */
-    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
-    .choice{display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;font-weight:800;user-select:none;cursor:pointer;transition:transform .05s,box-shadow .12s,border-color .12s,background .12s}
+    /* Choice tiles (icon above, label under) */
+    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
+    .choice{
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+      text-align:center; padding:18px 12px; min-height:118px; width:100%;
+      border:1px solid var(--line); border-radius:16px; background:#fff;
+      font-weight:800; user-select:none; cursor:pointer;
+      transition:transform .05s,box-shadow .12s,border-color .12s,background .12s;
+    }
     .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
     .choice:active{transform:translateY(1px)}
     .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
+    .choice .icon{font-size:34px;line-height:1}
+    .choice .label{font-size:15px}
     @media (max-width:520px){ .choices{grid-template-columns:1fr} }
 
     #status{margin-top:8px;min-height:16px;color:#6b768a}
@@ -64,7 +72,7 @@
   <div class="wrap">
     <div class="card">
 
-      <!-- Intro + controls now wrapped so we can hide them on step 1 -->
+      <!-- Intro + controls -->
       <div id="intro">
         <h1>We’ll find the right local agent</h1>
         <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
@@ -93,16 +101,16 @@
           </div>
         </div>
 
-        <!-- 2. Property Type (tiles) -->
+        <!-- 2. Property Type (tiles with icon + label under) -->
         <div class="step" data-step="2">
-          <label>Property type</label>
+          <label>Awesome! Now, what best matches your property type?</label>
           <input type="hidden" id="ptypeHidden" name="propertyType" required />
           <div class="choices" id="ptypeChoices">
-            <div class="choice" data-value="House">🏠 House</div>
-            <div class="choice" data-value="Unit">🏢 Unit</div>
-            <div class="choice" data-value="Townhouse">🏘️ Townhouse</div>
-            <div class="choice" data-value="Land">🧱 Land</div>
-            <div class="choice" data-value="Other">🧩 Other</div>
+            <button type="button" class="choice" data-value="House"><span class="icon">🏠</span><span class="label">House</span></button>
+            <button type="button" class="choice" data-value="Unit"><span class="icon">🏢</span><span class="label">Unit</span></button>
+            <button type="button" class="choice" data-value="Townhouse"><span class="icon">🏘️</span><span class="label">Townhouse</span></button>
+            <button type="button" class="choice" data-value="Land"><span class="icon">🏞️</span><span class="label">Land</span></button>
+            <button type="button" class="choice" data-value="Other"><span class="icon">🧩</span><span class="label">Other</span></button>
           </div>
           <div class="btns" style="margin-top:12px">
             <button type="button" class="back">Back</button>
@@ -114,10 +122,10 @@
           <label>Estimated price point</label>
           <input type="hidden" id="priceBandHidden" name="priceBand" required />
           <div class="choices" id="priceChoices">
-            <div class="choice" data-value="0–500k">0–500k</div>
-            <div class="choice" data-value="500k–1m">500k–1m</div>
-            <div class="choice" data-value="$1m–$2m">$1m–$2m</div>
-            <div class="choice" data-value="$2m+">$2m+</div>
+            <button type="button" class="choice" data-value="0–500k"><span class="icon">💰</span><span class="label">0–500k</span></button>
+            <button type="button" class="choice" data-value="500k–1m"><span class="icon">💰</span><span class="label">500k–1m</span></button>
+            <button type="button" class="choice" data-value="$1m–$2m"><span class="icon">💰</span><span class="label">$1m–$2m</span></button>
+            <button type="button" class="choice" data-value="$2m+"><span class="icon">💰</span><span class="label">$2m+</span></button>
           </div>
           <div class="btns" style="margin-top:12px">
             <button type="button" class="back">Back</button>
@@ -187,7 +195,8 @@
     const steps = [...form.querySelectorAll(".step")];
     const bar = document.getElementById("bar");
     const statusEl = document.getElementById("status");
-    const stepperEls = document.getElementById("stepper").children;
+    const stepper = document.getElementById("stepper");
+    const stepperEls = stepper.children;
     const intro = document.getElementById("intro");
     const controlsWrap = document.getElementById("controlsWrap");
     let stepIndex = 0;
@@ -202,10 +211,12 @@
       bar.style.width = pct + "%";
       [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
 
-      // Hide intro + stepper/progress on the first step only
-      const hideChrome = (stepIndex === 0);
-      intro.classList.toggle("hidden", hideChrome);
-      controlsWrap.classList.toggle("hidden", hideChrome);
+      // Hide intro + controls on step 1; hide only the stepper on step 2
+      const hideAllChrome = (stepIndex === 0);
+      intro.classList.toggle("hidden", hideAllChrome);
+      controlsWrap.classList.toggle("hidden", hideAllChrome);
+      // Hide the stepper (but keep the progress bar) on step 0 and 1
+      stepper.classList.toggle("hidden", stepIndex < 2);
     }
     function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
 
