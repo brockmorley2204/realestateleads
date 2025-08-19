@@ -6,41 +6,28 @@
   <title>Find Your Top Local Agent</title>
   <style>
     :root{
-      --brand:#0b66ff;      /* change to your brand */
-      --ink:#182338;
-      --muted:#6b768a;
-      --ok:#2e7d32;
-      --line:rgba(24,35,56,.08);
+      --brand:#0b66ff; --brand2:#6aa5ff; --ink:#182338; --muted:#6b768a; --ok:#2e7d32; --line:rgba(24,35,56,.08);
     }
     *{box-sizing:border-box}
     html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:transparent;color:var(--ink)}
     .wrap{max-width:640px;margin:44px auto;padding:0 18px}
-    /* Glass card (70% white) */
     .card{
-      background:rgba(255,255,255,.70);
-      border:1px solid rgba(255,255,255,.45);
-      border-radius:18px;
-      padding:28px 26px 24px;
-      backdrop-filter:saturate(1.1) blur(3px);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      background:rgba(255,255,255,.70); border:1px solid rgba(255,255,255,.45);
+      border-radius:18px; padding:28px 26px 24px;
+      backdrop-filter:saturate(1.1) blur(3px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
       box-shadow:0 24px 60px -30px rgba(24,35,56,.35);
     }
     h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
     .lead{margin:0 0 18px;color:var(--muted)}
+    .hidden{display:none !important}
 
     /* Stepper (dots only) + progress */
     .stepper{display:flex;gap:10px;justify-content:center;margin:4px 0 10px;padding:0;list-style:none}
     .stepper li{flex:0 0 auto;display:flex;align-items:center}
-    .dot{
-      width:26px;height:26px;border-radius:50%;
-      display:grid;place-items:center;
-      font-weight:800;font-size:12px;
-      color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff
-    }
+    .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff}
     .stepper li.active .dot{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(11,102,255,.35)}
-
     .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:8px 0 18px}
-    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),#6aa5ff);transition:width .25s ease}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .25s ease}
 
     /* Steps */
     .step{display:none;animation:fade .22s ease}
@@ -63,19 +50,12 @@
 
     /* Choice tiles */
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
-    .choice{
-      display:flex;align-items:center;justify-content:center;text-align:center;
-      padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;
-      font-weight:800;user-select:none;cursor:pointer;
-      transition:transform .05s,box-shadow .12s,border-color .12s,background .12s
-    }
+    .choice{display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;font-weight:800;user-select:none;cursor:pointer;transition:transform .05s,box-shadow .12s,border-color .12s,background .12s}
     .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
     .choice:active{transform:translateY(1px)}
     .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
-
     @media (max-width:520px){ .choices{grid-template-columns:1fr} }
 
-    /* Status */
     #status{margin-top:8px;min-height:16px;color:#6b768a}
     #status.saved{color:#2e7d32}
   </style>
@@ -84,28 +64,30 @@
   <div class="wrap">
     <div class="card">
 
-      <h1>We’ll find the right local agent</h1>
-      <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
+      <!-- Intro + controls now wrapped so we can hide them on step 1 -->
+      <div id="intro">
+        <h1>We’ll find the right local agent</h1>
+        <p class="lead">Answer a few quick questions. We’ll compare recent results in your area and connect you with the best fit.</p>
+      </div>
 
-      <!-- Dots-only stepper -->
-      <ol class="stepper" id="stepper" aria-label="Form progress">
-        <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
-        <li><span class="dot" aria-label="Step 2">2</span></li>
-        <li><span class="dot" aria-label="Step 3">3</span></li>
-        <li><span class="dot" aria-label="Step 4">4</span></li>
-        <li><span class="dot" aria-label="Step 5">5</span></li>
-        <li><span class="dot" aria-label="Step 6">6</span></li>
-      </ol>
-
-      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div id="controlsWrap">
+        <ol class="stepper" id="stepper" aria-label="Form progress">
+          <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
+          <li><span class="dot" aria-label="Step 2">2</span></li>
+          <li><span class="dot" aria-label="Step 3">3</span></li>
+          <li><span class="dot" aria-label="Step 4">4</span></li>
+          <li><span class="dot" aria-label="Step 5">5</span></li>
+          <li><span class="dot" aria-label="Step 6">6</span></li>
+        </ol>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+      </div>
 
       <form id="funnel" novalidate>
         <!-- 1. Postcode -->
         <div class="step active" data-step="1">
-          <label for="postcode">What’s your property’s postcode?</label>
+          <label for="postcode">Enter your postcode to be matched with the Best Local Agent</label>
           <input id="postcode" name="postcode" inputmode="numeric" minlength="4" maxlength="4"
                  autocomplete="postal-code" placeholder="e.g. 2170" required />
-          <div class="hint">We use this to check recent local sales and agent performance.</div>
           <div class="btns">
             <button type="button" class="next">Next</button>
           </div>
@@ -163,26 +145,16 @@
           </div>
         </div>
 
-<!-- 6. Email -->
-<div class="step" data-step="6">
-  <label for="email">Email for your results</label>
-  <input
-    id="email"
-    name="email"
-    type="email"
-    inputmode="email"
-    autocomplete="email"
-    placeholder="you@example.com"
-    required
-    pattern="[^@\s]+@[^@\s]+\.[^@\s]+" 
-    title="Please enter a valid email address"
-  />
-  <div class="tiny">By continuing, you agree we may contact you about your appraisal. You can opt out anytime.</div>
-  <div class="btns">
-    <button type="button" class="back">Back</button>
-    <button type="submit" class="submit">See my match</button>
-  </div>
-</div>
+        <!-- 6. Email -->
+        <div class="step" data-step="6">
+          <label for="email">Email for your results</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required />
+          <div class="tiny">By continuing, you agree we may contact you about your appraisal. You can opt out anytime.</div>
+          <div class="btns">
+            <button type="button" class="back">Back</button>
+            <button type="submit" class="submit">See my match</button>
+          </div>
+        </div>
 
         <!-- 7. Thank you -->
         <div class="step" data-step="7">
@@ -199,72 +171,73 @@
   </div>
 
   <script>
-    // Your Apps Script Web App URL (ends with /exec)
+    // Your Apps Script Web App URL
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
-    const formSteps = 6; // number of interactive steps
+    const formSteps = 6;
 
-    // Helpers
-    function normalizePostcode(v){ return String(v||"").replace(/\\D/g,"").slice(0,4); }
+    function normalizePostcode(v){ return String(v||"").replace(/\D/g,"").slice(0,4); }
 
-    // Lead ID
     const leadId = (()=>{ const k=PROJECT+":leadId"; let id=localStorage.getItem(k);
       if(!id){ id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2)); localStorage.setItem(k,id); }
       return id;
     })();
 
-    // DOM
     const form = document.getElementById("funnel");
     const steps = [...form.querySelectorAll(".step")];
     const bar = document.getElementById("bar");
     const statusEl = document.getElementById("status");
-    const stepper = document.getElementById("stepper").children;
+    const stepperEls = document.getElementById("stepper").children;
+    const intro = document.getElementById("intro");
+    const controlsWrap = document.getElementById("controlsWrap");
     let stepIndex = 0;
 
-    // Postcode sanitize
+    // sanitize postcode live
     const pcInput = document.getElementById("postcode");
-    pcInput.addEventListener("input", ()=>{
-      const n = normalizePostcode(pcInput.value);
-      if(pcInput.value!==n) pcInput.value=n;
-    });
+    pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
 
-    // UI updates
     function updateUI(){
       steps.forEach((s,i)=>s.classList.toggle("active", i===stepIndex));
       const pct = Math.min(100, Math.round((Math.min(stepIndex+1, formSteps)/formSteps)*100));
       bar.style.width = pct + "%";
-      [...stepper].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
+      [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
+
+      // Hide intro + stepper/progress on the first step only
+      const hideChrome = (stepIndex === 0);
+      intro.classList.toggle("hidden", hideChrome);
+      controlsWrap.classList.toggle("hidden", hideChrome);
     }
     function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
 
-    // Collect fields on current step
     function getCurrentFields(){
       const step = steps[stepIndex];
       const inputs = step.querySelectorAll("input, select");
       const data = {};
       inputs.forEach(inp=>{
-        let v = inp.value.trim();
+        let v = (inp.value || "").trim();
         if(inp.id==="postcode") v = normalizePostcode(v);
         data[inp.name || inp.id] = v;
       });
       return data;
     }
 
-    // Validation minimal
     function validForStep(){
       const step = steps[stepIndex];
       const inputs = step.querySelectorAll("input[required], select[required]");
       for(const inp of inputs){
-        let v = inp.value.trim();
+        let v = (inp.value || "").trim();
         if(inp.id==="postcode") v = normalizePostcode(v);
         if(!v) return false;
-        if(inp.type==="email" && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(v)) return false;
+        if(inp.type==="email"){
+          inp.value = v;
+          if (typeof inp.checkValidity==="function" && !inp.checkValidity()) return false;
+          if (!inp.checkValidity && !/.+@.+\..+/.test(v)) return false;
+        }
         if(inp.id==="postcode" && v.length!==4) return false;
       }
       return true;
     }
 
-    // Save (fire-and-forget; UI never waits on network)
     function savePartial(eventType){
       const payload = {
         leadId, event:eventType, stepNumber:stepIndex+1,
@@ -273,41 +246,22 @@
         ts:new Date().toISOString()
       };
       const json = JSON.stringify(payload);
-      let sent = false;
-      try{
-        fetch(WEBHOOK_URL,{method:"POST",mode:"no-cors",body:json,keepalive:true});
-        sent = true;
-      }catch(e){
-        try{
-          if(navigator.sendBeacon){
-            const blob = new Blob([json],{type:"text/plain;charset=UTF-8"});
-            navigator.sendBeacon(WEBHOOK_URL, blob);
-            sent = true;
-          }
-        }catch(_){}
-      }
+      let sent=false;
+      try{ fetch(WEBHOOK_URL,{method:"POST",mode:"no-cors",body:json,keepalive:true}); sent=true; }
+      catch(e){ try{ if(navigator.sendBeacon){ const b=new Blob([json],{type:"text/plain"}); navigator.sendBeacon(WEBHOOK_URL,b); sent=true; } }catch(_){} }
       statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
       statusEl.classList.toggle("saved", sent);
     }
 
-    // Click handlers
-    form.addEventListener("click", (e)=>{
+    form.addEventListener("click",(e)=>{
       const el = e.target.closest(".choice, .next, .back");
       if(!el) return;
-
-      // Back
       if(el.classList.contains("back")){ showStep(stepIndex-1); return; }
-
-      // Next (text inputs)
       if(el.classList.contains("next")){
         if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
         statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
-        savePartial("step");            // fire & forget
-        showStep(stepIndex+1);
-        return;
+        savePartial("step"); showStep(stepIndex+1); return;
       }
-
-      // Choice tiles (auto-advance)
       if(el.classList.contains("choice")){
         const group = el.parentElement;
         group.querySelectorAll(".choice").forEach(c=>c.classList.remove("selected"));
@@ -315,36 +269,28 @@
         if(group.id==="ptypeChoices"){ document.getElementById("ptypeHidden").value = el.dataset.value; }
         if(group.id==="priceChoices"){ document.getElementById("priceBandHidden").value = el.dataset.value; }
         statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
-        savePartial("step");            // fire & forget
-        showStep(stepIndex+1);
+        savePartial("step"); showStep(stepIndex+1);
       }
     });
 
-    // Enter key acts like Next on text inputs
     ["postcode","address","phone","email"].forEach(id=>{
-      const x = document.getElementById(id);
-      if(!x) return;
+      const x=document.getElementById(id); if(!x) return;
       x.addEventListener("keydown",(e)=>{
-        if(e.key==="Enter"){
-          e.preventDefault();
+        if(e.key==="Enter"){ e.preventDefault();
           if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
           statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
-          savePartial("step");
-          showStep(stepIndex+1);
+          savePartial("step"); showStep(stepIndex+1);
         }
       });
     });
 
-    // Final submit (also non-blocking)
     form.addEventListener("submit",(e)=>{
       e.preventDefault();
       if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
       statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
-      savePartial("complete");
-      showStep(formSteps); // thank-you
+      savePartial("complete"); showStep(formSteps); // thank-you
     });
 
-    // Init
     showStep(0);
   </script>
 </body>
