@@ -35,7 +35,6 @@
     label{display:block;margin:10px 0 8px;font-weight:800}
     input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff;transition:border .15s,box-shadow .15s}
     input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 4px #eaf0ff}
-    .hint{font-size:12px;color:var(--muted);margin-top:6px}
     .tiny{font-size:12px;color:#7f8aa1;margin-top:10px}
     .center{text-align:center}
 
@@ -46,7 +45,7 @@
     .back{background:#eef2f7;color:#2b3c55}
     .submit{background:var(--ok);color:#fff;box-shadow:0 10px 22px -12px rgba(46,125,50,.5)}
 
-    /* Choice tiles (icon above, label below) */
+    /* Choice tiles (Q2: icon+label, Q3: text-only variant) */
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
     .choice{
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
@@ -60,6 +59,11 @@
     .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
     .choice .icon{font-size:34px;line-height:1}
     .choice .label{font-size:15px}
+
+    /* Text-only tile (no icon) */
+    .choice.text{min-height:90px; padding:16px 12px}
+    .choice.text .label{font-size:17px}
+
     @media (max-width:520px){ .choices{grid-template-columns:1fr} }
 
     #status{margin-top:8px;min-height:16px;color:#6b768a}
@@ -70,7 +74,7 @@
   <div class="wrap">
     <div class="card">
 
-      <!-- Controls (stepper + progress) -->
+      <!-- Controls (stepper + progress); no intro/blurb anywhere -->
       <div id="controlsWrap">
         <ol class="stepper" id="stepper" aria-label="Form progress">
           <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
@@ -94,7 +98,7 @@
           </div>
         </div>
 
-        <!-- 2. Property Type -->
+        <!-- 2. Property Type (icon tiles) -->
         <div class="step" data-step="2">
           <label>Awesome! Now, what best matches your property type?</label>
           <input type="hidden" id="ptypeHidden" name="propertyType" required />
@@ -110,15 +114,15 @@
           </div>
         </div>
 
-        <!-- 3. Price Point -->
+        <!-- 3. Price Point (text-only tiles, no icons) -->
         <div class="step" data-step="3">
           <label>Estimated price point</label>
           <input type="hidden" id="priceBandHidden" name="priceBand" required />
           <div class="choices" id="priceChoices">
-            <button type="button" class="choice" data-value="0–500k"><span class="icon">💰</span><span class="label">0–500k</span></button>
-            <button type="button" class="choice" data-value="500k–1m"><span class="icon">💰</span><span class="label">500k–1m</span></button>
-            <button type="button" class="choice" data-value="$1m–$2m"><span class="icon">💰</span><span class="label">$1m–$2m</span></button>
-            <button type="button" class="choice" data-value="$2m+"><span class="icon">💰</span><span class="label">$2m+</span></button>
+            <button type="button" class="choice text" data-value="0–500k"><span class="label">0–500k</span></button>
+            <button type="button" class="choice text" data-value="500k–1m"><span class="label">500k–1m</span></button>
+            <button type="button" class="choice text" data-value="$1m–$2m"><span class="label">$1m–$2m</span></button>
+            <button type="button" class="choice text" data-value="$2m+"><span class="label">$2m+</span></button>
           </div>
           <div class="btns" style="margin-top:12px">
             <button type="button" class="back">Back</button>
@@ -139,7 +143,6 @@
         <div class="step" data-step="5">
           <label for="phone">Best phone number</label>
           <input id="phone" name="phone" inputmode="tel" placeholder="e.g. 0400 000 000" required />
-          <div class="hint">We’ll only use this to share your short-list and next steps.</div>
           <div class="btns">
             <button type="button" class="back">Back</button>
             <button type="button" class="next">Next</button>
@@ -172,7 +175,6 @@
   </div>
 
   <script>
-    // Your Apps Script Web App URL
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
     const formSteps = 6;
@@ -193,7 +195,6 @@
     const controlsWrap = document.getElementById("controlsWrap");
     let stepIndex = 0;
 
-    // sanitize postcode live
     const pcInput = document.getElementById("postcode");
     pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
 
