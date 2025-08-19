@@ -163,16 +163,26 @@
           </div>
         </div>
 
-        <!-- 6. Email -->
-        <div class="step" data-step="6">
-          <label for="email">Email for your results</label>
-          <input id="email" name="email" type="email" placeholder="you@example.com" required />
-          <div class="tiny">By continuing, you agree we may contact you about your appraisal. You can opt out anytime.</div>
-          <div class="btns">
-            <button type="button" class="back">Back</button>
-            <button type="submit" class="submit">See my match</button>
-          </div>
-        </div>
+<!-- 6. Email -->
+<div class="step" data-step="6">
+  <label for="email">Email for your results</label>
+  <input
+    id="email"
+    name="email"
+    type="email"
+    inputmode="email"
+    autocomplete="email"
+    placeholder="you@example.com"
+    required
+    pattern="[^@\s]+@[^@\s]+\.[^@\s]+" 
+    title="Please enter a valid email address"
+  />
+  <div class="tiny">By continuing, you agree we may contact you about your appraisal. You can opt out anytime.</div>
+  <div class="btns">
+    <button type="button" class="back">Back</button>
+    <button type="submit" class="submit">See my match</button>
+  </div>
+</div>
 
         <!-- 7. Thank you -->
         <div class="step" data-step="7">
