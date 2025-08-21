@@ -12,7 +12,6 @@
     .card{background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.45);border-radius:18px;padding:28px 26px 24px;
       backdrop-filter:saturate(1.1) blur(3px);-webkit-backdrop-filter:saturate(1.1) blur(3px);box-shadow:0 24px 60px -30px rgba(24,35,56,.35)}
     .hidden{display:none!important}
-    .center{text-align:center}
 
     /* (optional) dots + progress (hidden on step 1) */
     .stepper{display:flex;gap:10px;justify-content:center;margin:4px 0 10px;padding:0;list-style:none}
@@ -28,7 +27,6 @@
     label{display:block;margin:10px 0 8px;font-weight:800}
     input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff;transition:border .12s,box-shadow .12s}
     input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 4px #eaf0ff}
-
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
     .choice{display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;font-weight:800;user-select:none;cursor:pointer;transition:transform .05s,box-shadow .12s,border-color .12s,background .12s}
     .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
@@ -51,7 +49,7 @@
   <div class="wrap">
     <div class="card">
 
-      <!-- Progress UI (hidden on step 1) -->
+      <!-- hide these on step 1 -->
       <div id="controlsWrap">
         <ol class="stepper" id="stepper" aria-label="Form progress">
           <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
@@ -140,10 +138,10 @@
 
         <!-- 7. Thank you -->
         <div class="step" data-step="7">
-          <div class="center" style="padding:10px 2px">
-            <h2 style="margin:6px 0 10px">Thank you for completing! 🎉</h2>
-            <p style="margin:0 0 10px;color:var(--muted)">We will send you the match very shortly!</p>
-            <p class="tiny">Keep an eye on your email and phone for the details.</p>
+          <div style="text-align:center;padding:6px 2px">
+            <h2 style="margin:6px 0 8px">We’ve found a match 🎉</h2>
+            <p style="margin:0 0 10px;color:var(--muted)">Based on recent results in your area, <strong>Brock Morley</strong> is a great fit for your property.</p>
+            <p class="tiny">We’ll reach out shortly with a quick appraisal and next steps.</p>
           </div>
         </div>
       </form>
@@ -153,15 +151,14 @@
   </div>
 
   <script>
-  (function(){
     // ===== CONFIG =====
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
     const formSteps = 6;
 
     // ===== UTIL =====
-    const $ = s => document.querySelector(s);
     function normalizePostcode(v){ return String(v||"").replace(/\D/g,"").slice(0,4); }
+    function qs(n){ return document.querySelector(n); }
     function readParams(){
       const url = new URL(window.location.href);
       const keys = ["gclid","utm_source","utm_medium","utm_campaign","utm_term","utm_content","fbclid","msclkid"];
@@ -169,6 +166,7 @@
       keys.forEach(k => { const v = url.searchParams.get(k); if (v) out[k] = v; });
       return out;
     }
+    // Persist campaign info for session depth
     const CAMPAIGN = (() => {
       const key = PROJECT + ":campaign";
       try{
@@ -180,44 +178,39 @@
       }catch(_){ return readParams(); }
     })();
 
-    // Stable lead ID per browser
+    // Stable lead id
     const leadId = (()=>{ const k=PROJECT+":leadId"; let id=localStorage.getItem(k);
       if(!id){ id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2)); localStorage.setItem(k,id); }
       return id;
     })();
 
-    // ===== ELEMENTS (guarded) =====
-    const form = $("#funnel");
-    const steps = form ? [...form.querySelectorAll(".step")] : [];
-    const bar = $("#bar");
-    const statusEl = $("#status");
-    const stepper = $("#stepper");
-    const stepperEls = stepper ? Array.from(stepper.children) : [];
-    const controlsWrap = $("#controlsWrap");
+    // ===== ELEMENTS =====
+    const form = document.getElementById("funnel");
+    const steps = [...form.querySelectorAll(".step")];
+    const bar = document.getElementById("bar");
+    const statusEl = document.getElementById("status");
+    const stepperEls = document.getElementById("stepper").children;
+    const controlsWrap = document.getElementById("controlsWrap");
     let stepIndex = 0;
 
-    // If form missing, stop
-    if (!form) return;
-
-    // Live postcode sanitise (guarded)
-    const pcInput = $("#postcode");
-    if (pcInput) {
-      pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
-    }
+    // Live postcode sanitise
+    const pcInput = document.getElementById("postcode");
+    pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
 
     function updateUI(){
       steps.forEach((s,i)=>s.classList.toggle("active", i===stepIndex));
       const pct = Math.min(100, Math.round((Math.min(stepIndex+1, formSteps)/formSteps)*100));
       if (bar) bar.style.width = pct + "%";
-      if (stepperEls.length) stepperEls.forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
-      if (controlsWrap) controlsWrap.classList.toggle("hidden", stepIndex===0); // hide dots/progress on first step
-      if (statusEl && stepIndex===0) statusEl.textContent = ""; // keep hero step clean
+      if (stepperEls) [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
+      controlsWrap.classList.toggle("hidden", stepIndex===0); // hide dots/progress on first step
+      // Quiet status on first step
+      if (stepIndex===0) statusEl.textContent = "";
     }
     function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
 
     function getCurrentFields(){
       const step = steps[stepIndex];
-      const inputs = step ? step.querySelectorAll("input, select") : [];
+      const inputs = step.querySelectorAll("input, select");
       const data = {};
       inputs.forEach(inp=>{
         let v = (inp.value || "").trim();
@@ -229,7 +222,6 @@
 
     function validForStep(){
       const step = steps[stepIndex];
-      if (!step) return true;
       const inputs = step.querySelectorAll("input[required], select[required]");
       for(const inp of inputs){
         let v = (inp.value || "").trim();
@@ -274,7 +266,7 @@
           }
         }catch(_){}
       }
-      if (statusEl && stepIndex>0) {
+      if (stepIndex>0) { // don't show on the clean hero step
         statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
         statusEl.classList.toggle("saved", sent);
       }
@@ -283,29 +275,29 @@
 
     // Click handlers: next/back and instant-choice
     form.addEventListener("click",(e)=>{
-      const el = e.target.closest && e.target.closest(".choice, .next, .back");
+      const el = e.target.closest(".choice, .next, .back");
       if(!el) return;
       if(el.classList.contains("back")){ showStep(stepIndex-1); return; }
       if(el.classList.contains("next")){
-        if(!validForStep()){ if(statusEl){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); } return; }
+        if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
         savePartial("step"); showStep(stepIndex+1); return;
       }
       if(el.classList.contains("choice")){
         const group = el.parentElement;
         group.querySelectorAll(".choice").forEach(c=>c.classList.remove("selected"));
         el.classList.add("selected");
-        if(group.id==="ptypeChoices"){ const h=$("#ptypeHidden"); if (h) h.value = el.dataset.value; }
-        if(group.id==="priceChoices"){ const h=$("#priceBandHidden"); if (h) h.value = el.dataset.value; }
+        if(group.id==="ptypeChoices"){ document.getElementById("ptypeHidden").value = el.dataset.value; }
+        if(group.id==="priceChoices"){ document.getElementById("priceBandHidden").value = el.dataset.value; }
         savePartial("step"); showStep(stepIndex+1);
       }
     });
 
-    // Enter to advance on text fields
+    // Enter to advance
     ["postcode","address","phone","email"].forEach(id=>{
-      const x=$("#"+id); if(!x) return;
+      const x=document.getElementById(id); if(!x) return;
       x.addEventListener("keydown",(e)=>{
         if(e.key==="Enter"){ e.preventDefault();
-          if(!validForStep()){ if(statusEl){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); } return; }
+          if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
           savePartial("step"); showStep(stepIndex+1);
         }
       });
@@ -314,8 +306,9 @@
     // Submit (final step)
     form.addEventListener("submit",(e)=>{
       e.preventDefault();
-      if(!validForStep()){ if(statusEl){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); } return; }
+      if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
       const payload = savePartial("complete");
+      // GTM / dataLayer hook for Google Ads conversion
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event:"lead_complete", leadId: payload.leadId, postcode: payload.answers.postcode || null });
       showStep(formSteps); // thank-you
@@ -323,7 +316,6 @@
 
     // init
     updateUI();
-  })();
   </script>
 </body>
 </html>
