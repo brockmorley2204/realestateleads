@@ -153,12 +153,14 @@
   </div>
 
   <script>
+  (function(){
     // ===== CONFIG =====
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
     const formSteps = 6;
 
     // ===== UTIL =====
+    const $ = s => document.querySelector(s);
     function normalizePostcode(v){ return String(v||"").replace(/\D/g,"").slice(0,4); }
     function readParams(){
       const url = new URL(window.location.href);
@@ -167,7 +169,6 @@
       keys.forEach(k => { const v = url.searchParams.get(k); if (v) out[k] = v; });
       return out;
     }
-    // Persist campaign info for the session
     const CAMPAIGN = (() => {
       const key = PROJECT + ":campaign";
       try{
@@ -185,32 +186,38 @@
       return id;
     })();
 
-    // ===== ELEMENTS =====
-    const form = document.getElementById("funnel");
-    const steps = [...form.querySelectorAll(".step")];
-    const bar = document.getElementById("bar");
-    const statusEl = document.getElementById("status");
-    const stepperEls = document.getElementById("stepper").children;
-    const controlsWrap = document.getElementById("controlsWrap");
+    // ===== ELEMENTS (guarded) =====
+    const form = $("#funnel");
+    const steps = form ? [...form.querySelectorAll(".step")] : [];
+    const bar = $("#bar");
+    const statusEl = $("#status");
+    const stepper = $("#stepper");
+    const stepperEls = stepper ? Array.from(stepper.children) : [];
+    const controlsWrap = $("#controlsWrap");
     let stepIndex = 0;
 
-    // Live postcode sanitise
-    const pcInput = document.getElementById("postcode");
-    pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
+    // If form missing, stop
+    if (!form) return;
+
+    // Live postcode sanitise (guarded)
+    const pcInput = $("#postcode");
+    if (pcInput) {
+      pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
+    }
 
     function updateUI(){
       steps.forEach((s,i)=>s.classList.toggle("active", i===stepIndex));
       const pct = Math.min(100, Math.round((Math.min(stepIndex+1, formSteps)/formSteps)*100));
       if (bar) bar.style.width = pct + "%";
-      if (stepperEls) [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
-      controlsWrap.classList.toggle("hidden", stepIndex===0); // hide dots/progress on first step
-      if (stepIndex===0) statusEl.textContent = ""; // keep the hero step clean
+      if (stepperEls.length) stepperEls.forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
+      if (controlsWrap) controlsWrap.classList.toggle("hidden", stepIndex===0); // hide dots/progress on first step
+      if (statusEl && stepIndex===0) statusEl.textContent = ""; // keep hero step clean
     }
     function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
 
     function getCurrentFields(){
       const step = steps[stepIndex];
-      const inputs = step.querySelectorAll("input, select");
+      const inputs = step ? step.querySelectorAll("input, select") : [];
       const data = {};
       inputs.forEach(inp=>{
         let v = (inp.value || "").trim();
@@ -222,6 +229,7 @@
 
     function validForStep(){
       const step = steps[stepIndex];
+      if (!step) return true;
       const inputs = step.querySelectorAll("input[required], select[required]");
       for(const inp of inputs){
         let v = (inp.value || "").trim();
@@ -266,7 +274,7 @@
           }
         }catch(_){}
       }
-      if (stepIndex>0) { // don't show on the clean hero step
+      if (statusEl && stepIndex>0) {
         statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
         statusEl.classList.toggle("saved", sent);
       }
@@ -275,29 +283,29 @@
 
     // Click handlers: next/back and instant-choice
     form.addEventListener("click",(e)=>{
-      const el = e.target.closest(".choice, .next, .back");
+      const el = e.target.closest && e.target.closest(".choice, .next, .back");
       if(!el) return;
       if(el.classList.contains("back")){ showStep(stepIndex-1); return; }
       if(el.classList.contains("next")){
-        if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
+        if(!validForStep()){ if(statusEl){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); } return; }
         savePartial("step"); showStep(stepIndex+1); return;
       }
       if(el.classList.contains("choice")){
         const group = el.parentElement;
         group.querySelectorAll(".choice").forEach(c=>c.classList.remove("selected"));
         el.classList.add("selected");
-        if(group.id==="ptypeChoices"){ document.getElementById("ptypeHidden").value = el.dataset.value; }
-        if(group.id==="priceChoices"){ document.getElementById("priceBandHidden").value = el.dataset.value; }
+        if(group.id==="ptypeChoices"){ const h=$("#ptypeHidden"); if (h) h.value = el.dataset.value; }
+        if(group.id==="priceChoices"){ const h=$("#priceBandHidden"); if (h) h.value = el.dataset.value; }
         savePartial("step"); showStep(stepIndex+1);
       }
     });
 
     // Enter to advance on text fields
     ["postcode","address","phone","email"].forEach(id=>{
-      const x=document.getElementById(id); if(!x) return;
+      const x=$("#"+id); if(!x) return;
       x.addEventListener("keydown",(e)=>{
         if(e.key==="Enter"){ e.preventDefault();
-          if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
+          if(!validForStep()){ if(statusEl){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); } return; }
           savePartial("step"); showStep(stepIndex+1);
         }
       });
@@ -306,9 +314,8 @@
     // Submit (final step)
     form.addEventListener("submit",(e)=>{
       e.preventDefault();
-      if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
+      if(!validForStep()){ if(statusEl){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); } return; }
       const payload = savePartial("complete");
-      // GTM / dataLayer hook for Google Ads conversion
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event:"lead_complete", leadId: payload.leadId, postcode: payload.answers.postcode || null });
       showStep(formSteps); // thank-you
@@ -316,6 +323,7 @@
 
     // init
     updateUI();
+  })();
   </script>
 </body>
 </html>
