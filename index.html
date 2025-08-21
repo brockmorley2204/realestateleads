@@ -5,67 +5,44 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Find Your Top Local Agent</title>
   <style>
-    :root{
-      --brand:#0b66ff; --brand2:#6aa5ff; --ink:#182338; --muted:#6b768a; --ok:#2e7d32; --line:rgba(24,35,56,.08);
-    }
+    :root{--brand:#0b66ff;--brand2:#6aa5ff;--ink:#182338;--muted:#6b768a;--ok:#2e7d32;--line:rgba(24,35,56,.10)}
     *{box-sizing:border-box}
     html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:transparent;color:var(--ink)}
     .wrap{max-width:640px;margin:44px auto;padding:0 18px}
-    .card{
-      background:rgba(255,255,255,.70); border:1px solid rgba(255,255,255,.45);
-      border-radius:18px; padding:28px 26px 24px;
-      backdrop-filter:saturate(1.1) blur(3px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      box-shadow:0 24px 60px -30px rgba(24,35,56,.35);
-    }
-    .hidden{display:none !important}
+    .card{background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.45);border-radius:18px;padding:28px 26px 24px;
+      backdrop-filter:saturate(1.1) blur(3px);-webkit-backdrop-filter:saturate(1.1) blur(3px);box-shadow:0 24px 60px -30px rgba(24,35,56,.35)}
+    .hidden{display:none!important}
+    .center{text-align:center}
 
-    /* Stepper (dots) + progress */
+    /* (optional) dots + progress (hidden on step 1) */
     .stepper{display:flex;gap:10px;justify-content:center;margin:4px 0 10px;padding:0;list-style:none}
-    .stepper li{flex:0 0 auto;display:flex;align-items:center}
     .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#5f6b85;background:#eef2ff;border:1px solid #d9e4ff}
     .stepper li.active .dot{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(11,102,255,.35)}
     .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin:8px 0 18px}
-    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .25s ease}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .2s ease}
 
-    /* Steps */
-    .step{display:none;animation:fade .22s ease}
+    .step{display:none;animation:fade .18s ease}
     .step.active{display:block}
     @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
     label{display:block;margin:10px 0 8px;font-weight:800}
-    input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff;transition:border .15s,box-shadow .15s}
+    input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff;transition:border .12s,box-shadow .12s}
     input:focus{outline:none;border-color:#c9d7ff;box-shadow:0 0 0 4px #eaf0ff}
-    .tiny{font-size:12px;color:#7f8aa1;margin-top:10px}
-    .center{text-align:center}
 
-    /* Buttons */
+    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
+    .choice{display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;font-weight:800;user-select:none;cursor:pointer;transition:transform .05s,box-shadow .12s,border-color .12s,background .12s}
+    .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
+    .choice:active{transform:translateY(1px)}
+    .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
+    @media (max-width:520px){.choices{grid-template-columns:1fr}}
+
     .btns{display:flex;gap:12px;margin-top:16px}
     button{cursor:pointer;border:0;padding:12px 16px;border-radius:12px;font-weight:800;letter-spacing:.2px}
     .next{background:var(--brand);color:#fff;box-shadow:0 10px 22px -10px rgba(11,102,255,.6)}
     .back{background:#eef2f7;color:#2b3c55}
     .submit{background:var(--ok);color:#fff;box-shadow:0 10px 22px -12px rgba(46,125,50,.5)}
 
-    /* Choice tiles (Q2: icon+label, Q3: text-only variant) */
-    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
-    .choice{
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-      text-align:center; padding:18px 12px; min-height:118px; width:100%;
-      border:1px solid var(--line); border-radius:16px; background:#fff;
-      font-weight:800; user-select:none; cursor:pointer;
-      transition:transform .05s,box-shadow .12s,border-color .12s,background .12s;
-    }
-    .choice:hover{border-color:#cfd6e3;box-shadow:0 10px 18px -12px rgba(24,35,56,.25)}
-    .choice:active{transform:translateY(1px)}
-    .choice.selected{outline:2px solid var(--brand);background:#f5f8ff}
-    .choice .icon{font-size:34px;line-height:1}
-    .choice .label{font-size:15px}
-
-    /* Text-only tile (no icon) */
-    .choice.text{min-height:90px; padding:16px 12px}
-    .choice.text .label{font-size:17px}
-
-    @media (max-width:520px){ .choices{grid-template-columns:1fr} }
-
+    .tiny{font-size:12px;color:#7f8aa1;margin-top:10px}
     #status{margin-top:8px;min-height:16px;color:#6b768a}
     #status.saved{color:#2e7d32}
   </style>
@@ -74,7 +51,7 @@
   <div class="wrap">
     <div class="card">
 
-      <!-- Controls (stepper + progress); no intro/blurb anywhere -->
+      <!-- Progress UI (hidden on step 1) -->
       <div id="controlsWrap">
         <ol class="stepper" id="stepper" aria-label="Form progress">
           <li class="active"><span class="dot" aria-label="Step 1">1</span></li>
@@ -88,7 +65,7 @@
       </div>
 
       <form id="funnel" novalidate>
-        <!-- 1. Postcode -->
+        <!-- 1. Postcode (clean hero prompt) -->
         <div class="step active" data-step="1">
           <label for="postcode">Enter your postcode to be matched with the Best Local Agent</label>
           <input id="postcode" name="postcode" inputmode="numeric" minlength="4" maxlength="4"
@@ -98,31 +75,31 @@
           </div>
         </div>
 
-        <!-- 2. Property Type (icon tiles) -->
+        <!-- 2. Property Type (click = next) -->
         <div class="step" data-step="2">
-          <label>Awesome! Now, what best matches your property type?</label>
+          <label>Property type</label>
           <input type="hidden" id="ptypeHidden" name="propertyType" required />
           <div class="choices" id="ptypeChoices">
-            <button type="button" class="choice" data-value="House"><span class="icon">🏠</span><span class="label">House</span></button>
-            <button type="button" class="choice" data-value="Unit"><span class="icon">🏢</span><span class="label">Unit</span></button>
-            <button type="button" class="choice" data-value="Townhouse"><span class="icon">🏘️</span><span class="label">Townhouse</span></button>
-            <button type="button" class="choice" data-value="Land"><span class="icon">🏞️</span><span class="label">Land</span></button>
-            <button type="button" class="choice" data-value="Other"><span class="icon">🧩</span><span class="label">Other</span></button>
+            <div class="choice" data-value="House">🏠 House</div>
+            <div class="choice" data-value="Unit">🏢 Unit</div>
+            <div class="choice" data-value="Townhouse">🏘️ Townhouse</div>
+            <div class="choice" data-value="Land">🧱 Land</div>
+            <div class="choice" data-value="Other">🧩 Other</div>
           </div>
           <div class="btns" style="margin-top:12px">
             <button type="button" class="back">Back</button>
           </div>
         </div>
 
-        <!-- 3. Price Point (text-only tiles, no icons) -->
+        <!-- 3. Price Point (click = next) -->
         <div class="step" data-step="3">
           <label>Estimated price point</label>
           <input type="hidden" id="priceBandHidden" name="priceBand" required />
           <div class="choices" id="priceChoices">
-            <button type="button" class="choice text" data-value="0–500k"><span class="label">0–500k</span></button>
-            <button type="button" class="choice text" data-value="500k–1m"><span class="label">500k–1m</span></button>
-            <button type="button" class="choice text" data-value="$1m–$2m"><span class="label">$1m–$2m</span></button>
-            <button type="button" class="choice text" data-value="$2m+"><span class="label">$2m+</span></button>
+            <div class="choice" data-value="0–500k">0–500k</div>
+            <div class="choice" data-value="500k–1m">500k–1m</div>
+            <div class="choice" data-value="$1m–$2m">$1m–$2m</div>
+            <div class="choice" data-value="$2m+">$2m+</div>
           </div>
           <div class="btns" style="margin-top:12px">
             <button type="button" class="back">Back</button>
@@ -142,7 +119,8 @@
         <!-- 5. Phone -->
         <div class="step" data-step="5">
           <label for="phone">Best phone number</label>
-          <input id="phone" name="phone" inputmode="tel" placeholder="e.g. 0400 000 000" required />
+          <input id="phone" name="phone" inputmode="tel" maxlength="20" placeholder="e.g. 0400 000 000" required />
+          <div class="tiny">We’ll only use this to share your short-list and next steps.</div>
           <div class="btns">
             <button type="button" class="back">Back</button>
             <button type="button" class="next">Next</button>
@@ -160,52 +138,73 @@
           </div>
         </div>
 
-<!-- 7. Thank you -->
-<div class="step" data-step="7">
-  <div class="center" style="padding:10px 2px">
-    <h2 style="margin:6px 0 10px">Thank you for completing! 🎉</h2>
-    <p style="margin:0 0 10px;color:var(--muted)">
-      We will send you the match very shortly!
-    </p>
-    <p class="tiny">Keep an eye on your email and phone for the details.</p>
-  </div>
-</div>
+        <!-- 7. Thank you -->
+        <div class="step" data-step="7">
+          <div class="center" style="padding:10px 2px">
+            <h2 style="margin:6px 0 10px">Thank you for completing! 🎉</h2>
+            <p style="margin:0 0 10px;color:var(--muted)">We will send you the match very shortly!</p>
+            <p class="tiny">Keep an eye on your email and phone for the details.</p>
+          </div>
+        </div>
+      </form>
 
+      <div id="status" class="tiny" aria-live="polite"></div>
+    </div>
+  </div>
 
   <script>
+    // ===== CONFIG =====
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwQW0E9h0gWIN-wX6CDKUQJrjXzkfgA6sTIpqwd3-HisuiiJGXgcgSsUl5HWH8uV48/exec";
     const PROJECT = "agent-matcher-v1";
     const formSteps = 6;
 
+    // ===== UTIL =====
     function normalizePostcode(v){ return String(v||"").replace(/\D/g,"").slice(0,4); }
+    function readParams(){
+      const url = new URL(window.location.href);
+      const keys = ["gclid","utm_source","utm_medium","utm_campaign","utm_term","utm_content","fbclid","msclkid"];
+      const out = {};
+      keys.forEach(k => { const v = url.searchParams.get(k); if (v) out[k] = v; });
+      return out;
+    }
+    // Persist campaign info for the session
+    const CAMPAIGN = (() => {
+      const key = PROJECT + ":campaign";
+      try{
+        const existing = sessionStorage.getItem(key);
+        if (existing) return JSON.parse(existing);
+        const fresh = readParams();
+        sessionStorage.setItem(key, JSON.stringify(fresh));
+        return fresh;
+      }catch(_){ return readParams(); }
+    })();
 
+    // Stable lead ID per browser
     const leadId = (()=>{ const k=PROJECT+":leadId"; let id=localStorage.getItem(k);
       if(!id){ id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2)); localStorage.setItem(k,id); }
       return id;
     })();
 
+    // ===== ELEMENTS =====
     const form = document.getElementById("funnel");
     const steps = [...form.querySelectorAll(".step")];
     const bar = document.getElementById("bar");
     const statusEl = document.getElementById("status");
-    const stepper = document.getElementById("stepper");
-    const stepperEls = stepper.children;
+    const stepperEls = document.getElementById("stepper").children;
     const controlsWrap = document.getElementById("controlsWrap");
     let stepIndex = 0;
 
+    // Live postcode sanitise
     const pcInput = document.getElementById("postcode");
     pcInput.addEventListener("input", ()=>{ const n=normalizePostcode(pcInput.value); if(pcInput.value!==n) pcInput.value=n; });
 
     function updateUI(){
       steps.forEach((s,i)=>s.classList.toggle("active", i===stepIndex));
       const pct = Math.min(100, Math.round((Math.min(stepIndex+1, formSteps)/formSteps)*100));
-      bar.style.width = pct + "%";
-      [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
-
-      // Hide all chrome on step 1; on step 2 hide only the stepper (keep the progress bar)
-      const hideAllChrome = (stepIndex === 0);
-      controlsWrap.classList.toggle("hidden", hideAllChrome);
-      stepper.classList.toggle("hidden", stepIndex < 2);
+      if (bar) bar.style.width = pct + "%";
+      if (stepperEls) [...stepperEls].forEach((li,i)=>li.classList.toggle("active", i===Math.min(stepIndex, formSteps-1)));
+      controlsWrap.classList.toggle("hidden", stepIndex===0); // hide dots/progress on first step
+      if (stepIndex===0) statusEl.textContent = ""; // keep the hero step clean
     }
     function showStep(i){ stepIndex=Math.max(0,Math.min(i,steps.length-1)); updateUI(); }
 
@@ -240,26 +239,47 @@
 
     function savePartial(eventType){
       const payload = {
-        leadId, event:eventType, stepNumber:stepIndex+1,
-        answers:getCurrentFields(), userAgent:navigator.userAgent,
-        screen:{w:innerWidth,h:innerHeight,dpr:devicePixelRatio||1},
-        ts:new Date().toISOString()
+        leadId,
+        event: eventType,
+        stepNumber: stepIndex + 1,
+        answers: getCurrentFields(),
+        tracking: {
+          ...CAMPAIGN,
+          landing: location.pathname + location.search,
+          referrer: document.referrer || null
+        },
+        userAgent: navigator.userAgent,
+        screen: { w: innerWidth, h: innerHeight, dpr: devicePixelRatio || 1 },
+        ts: new Date().toISOString()
       };
       const json = JSON.stringify(payload);
       let sent=false;
-      try{ fetch(WEBHOOK_URL,{method:"POST",mode:"no-cors",body:json,keepalive:true}); sent=true; }
-      catch(e){ try{ if(navigator.sendBeacon){ const b=new Blob([json],{type:"text/plain"}); navigator.sendBeacon(WEBHOOK_URL,b); sent=true; } }catch(_){} }
-      statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
-      statusEl.classList.toggle("saved", sent);
+      try{
+        fetch(WEBHOOK_URL,{method:"POST",mode:"no-cors",body:json,keepalive:true});
+        sent=true;
+      }catch(e){
+        try{
+          if(navigator.sendBeacon){
+            const b=new Blob([json],{type:"text/plain"});
+            navigator.sendBeacon(WEBHOOK_URL,b);
+            sent=true;
+          }
+        }catch(_){}
+      }
+      if (stepIndex>0) { // don't show on the clean hero step
+        statusEl.textContent = sent ? "Saved." : "Working offline—will retry on next step.";
+        statusEl.classList.toggle("saved", sent);
+      }
+      return payload;
     }
 
+    // Click handlers: next/back and instant-choice
     form.addEventListener("click",(e)=>{
       const el = e.target.closest(".choice, .next, .back");
       if(!el) return;
       if(el.classList.contains("back")){ showStep(stepIndex-1); return; }
       if(el.classList.contains("next")){
         if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
-        statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
         savePartial("step"); showStep(stepIndex+1); return;
       }
       if(el.classList.contains("choice")){
@@ -268,30 +288,34 @@
         el.classList.add("selected");
         if(group.id==="ptypeChoices"){ document.getElementById("ptypeHidden").value = el.dataset.value; }
         if(group.id==="priceChoices"){ document.getElementById("priceBandHidden").value = el.dataset.value; }
-        statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
         savePartial("step"); showStep(stepIndex+1);
       }
     });
 
+    // Enter to advance on text fields
     ["postcode","address","phone","email"].forEach(id=>{
       const x=document.getElementById(id); if(!x) return;
       x.addEventListener("keydown",(e)=>{
         if(e.key==="Enter"){ e.preventDefault();
           if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
-          statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
           savePartial("step"); showStep(stepIndex+1);
         }
       });
     });
 
+    // Submit (final step)
     form.addEventListener("submit",(e)=>{
       e.preventDefault();
       if(!validForStep()){ statusEl.textContent="Please complete this step."; statusEl.classList.remove("saved"); return; }
-      statusEl.textContent="Saving…"; statusEl.classList.remove("saved");
-      savePartial("complete"); showStep(formSteps); // thank-you
+      const payload = savePartial("complete");
+      // GTM / dataLayer hook for Google Ads conversion
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event:"lead_complete", leadId: payload.leadId, postcode: payload.answers.postcode || null });
+      showStep(formSteps); // thank-you
     });
 
-    showStep(0);
+    // init
+    updateUI();
   </script>
 </body>
 </html>
