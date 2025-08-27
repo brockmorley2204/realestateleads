@@ -1,4 +1,4 @@
-<!-- === Lead form (front pill only on step 1) === -->
+<!-- === Lead form (front pill only on step 1, translucent white) === -->
 <style>
   :root{--brand:#0061ff;--brand-2:#6aa5ff;--accent:#ff6b6b;--accent-2:#ffd166;
         --ink:#0f172a;--muted:#64748b;--line:rgba(15,23,42,.12);--ok:#16a34a}
@@ -8,11 +8,11 @@
   /* Default card for steps 2+ (bubble around questions) */
   .card{
     display:inline-block; inline-size:clamp(320px,92vw,720px);
-    background:rgba(255,255,255,.88);
+    background:rgba(255,255,255,.88);                 /* translucent white */
     border:1px solid rgba(255,255,255,.70);
     border-radius:22px; padding:22px;
     box-shadow:0 8px 24px rgba(0,0,0,.12), 0 32px 80px -40px rgba(0,97,255,.35);
-    backdrop-filter:saturate(1.15) blur(6px);
+    backdrop-filter:saturate(1.15) blur(6px);          /* subtle background blur */
   }
 
   /* HERO MODE (step 1) — hide the rear tile */
@@ -30,16 +30,25 @@
 
   .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 
-  /* Search pill */
+  /* Search pill (translucent white with blur) */
   .searchwrap{position:relative}
-  .searchbar{width:100%;padding:18px 64px 18px 54px;border-radius:999px;border:1px solid #dce3f0;background:#fff;
-             font-size:17px;line-height:1.35;box-shadow:0 20px 40px -22px rgba(0,0,0,.25)}
+  .searchbar{
+    width:100%;
+    padding:18px 64px 18px 54px;
+    border-radius:999px;
+    background:rgba(255,255,255,.88);                 /* translucent white */
+    border:1px solid rgba(220,227,240,.70);           /* softer, semi-transparent border */
+    backdrop-filter:blur(6px) saturate(1.05);          /* subtle glass effect */
+    -webkit-backdrop-filter:blur(6px) saturate(1.05);
+    font-size:17px; line-height:1.35;
+    box-shadow:0 20px 40px -22px rgba(0,0,0,.25);
+  }
   .icon,.kbd{position:absolute;top:50%;transform:translateY(-50%);pointer-events:none}
   .icon{left:16px;color:#64748b}
   .icon svg{width:18px;height:18px;display:block}
   .kbd{right:14px;font-size:12px;color:#93a0b6;border:1px solid #dbe1ee;border-radius:6px;padding:3px 6px;background:#f7f9ff}
 
-  /* Generic inputs */
+  /* Generic inputs (keep solid white for readability on later steps) */
   .field{position:relative;margin-top:8px}
   .ficon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8}
   .ficon svg{width:18px;height:18px;display:block}
@@ -70,13 +79,12 @@
 
 <div class="wrap hero" id="shell">
   <div class="card">
-    <!-- Progress (hidden on step 1) -->
     <div id="controls" style="display:none">
       <div class="progress"><div class="bar" id="bar"></div></div>
     </div>
 
     <form id="form" novalidate>
-      <!-- STEP 1: address (only front pill visible) -->
+      <!-- STEP 1 (hero): translucent search pill -->
       <div class="step active" data-step="1">
         <label class="visually-hidden" for="address">Search your property address</label>
         <div class="searchwrap" style="margin-top:4px">
@@ -92,7 +100,6 @@
         </div>
         <div class="tiny">Powered by Google</div>
 
-        <!-- Hidden address parts -->
         <input type="hidden" id="addressFull" name="addressFull" />
         <input type="hidden" id="placeId" name="placeId" />
         <input type="hidden" id="streetNumber" name="streetNumber" />
@@ -201,7 +208,7 @@
     const pct=Math.round((Math.min(stepIndex+1,formSteps)/formSteps)*100);
     if(bar) bar.style.width=pct+"%";
     controls.style.display = stepIndex===0 ? "none" : "";
-    shell.classList.toggle("hero", stepIndex===0);   // <- hide rear tile on step 1
+    shell.classList.toggle("hero", stepIndex===0);   // no rear tile on step 1
   }
 
   function fieldsForStep(){ const inputs=steps[stepIndex]?.querySelectorAll("input,select")||[]; const d={}; inputs.forEach(i=>d[i.name||i.id]=(i.value||"").trim()); return d; }
@@ -262,11 +269,11 @@
       $("#state").value=(comps.administrative_area_level_1&&comps.administrative_area_level_1.short_name)||"";
       $("#addrPostcode").value=(comps.postal_code&&comps.postal_code.long_name)||"";
       $("#address").value=$("#addressFull").value;
-      save("step"); showStep(1); // progress appears; rear tile returns on next steps
+      save("step"); showStep(1); // rear tile appears on step 2+
     });
   };
 
-  showStep(0); // start in hero mode (no rear tile)
+  showStep(0);
 })();
 </script>
 
